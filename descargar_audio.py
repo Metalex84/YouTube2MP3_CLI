@@ -441,17 +441,12 @@ Ejemplos:
     )
     
     parser.add_argument(
-        'url', 
-        nargs='?', 
-        help='URL del video de YouTube (ignorado si se usa --csv-file)'
-    )
-    parser.add_argument(
         '-o', '--output-dir',
         default='.',
         help='Directorio donde guardar el archivo MP3 (por defecto: directorio actual)'
     )
     parser.add_argument(
-        '--csv-file',
+        'csv_file',
         help='Archivo CSV con URLs a procesar (una URL por fila)'
     )
     parser.add_argument(
@@ -467,35 +462,13 @@ Ejemplos:
     # Mostrar informacion del archivo de log
     thread_safe_print(f"[INFO] Log de la sesion: {log_file}")
     
-    # Modo CSV: procesar multiples URLs desde archivo
-    if args.csv_file:
-        safe_print(f"[FOLDER] Procesando URLs desde archivo CSV: {args.csv_file}\n")
-        urls_a_procesar = leer_urls_csv(args.csv_file)
-        
-        if not urls_a_procesar:
-            safe_print("[ERROR] No se encontraron URLs validas en el archivo CSV.")
-            return 1
+    # Modo CSV obligatorio: procesar multiples URLs desde archivo
+    safe_print(f"[FOLDER] Procesando URLs desde archivo CSV: {args.csv_file}\n")
+    urls_a_procesar = leer_urls_csv(args.csv_file)
     
-    # Modo individual: una sola URL
-    else:
-        url = args.url
-        if not url:
-            try:
-                url = input("Pega la URL del video de YouTube aqui: ").strip()
-            except KeyboardInterrupt:
-                safe_print("\n[ERROR] Operacion cancelada por el usuario.")
-                return 1
-        
-        if not url:
-            safe_print("[ERROR] No se proporciono ninguna URL.")
-            return 1
-        
-        # Validacion basica de URL
-        if not (url.startswith('http://') or url.startswith('https://')):
-            safe_print("[ERROR] La URL debe comenzar con http:// o https://")
-            return 1
-            
-        urls_a_procesar = [url]
+    if not urls_a_procesar:
+        safe_print("[ERROR] No se encontraron URLs validas en el archivo CSV.")
+        return 1
     
     # Procesar todas las URLs de forma asincrona
     total_urls = len(urls_a_procesar)

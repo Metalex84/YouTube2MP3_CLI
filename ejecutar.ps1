@@ -1,7 +1,8 @@
+﻿# ================================================================================
+# EJECUTOR - YouTube to MP3 Converter (Docker)
 # ================================================================================
-# EJECUTOR - YouTube to MP3 Converter
-# ================================================================================
-# Script simplificado para ejecutar el YouTube to MP3 Converter
+# Single-entry script that runs the CLI inside Docker.
+# Requires: Docker Desktop (or docker engine) installed and running.
 # ================================================================================
 
 param(
@@ -9,9 +10,8 @@ param(
     [string[]]$Arguments
 )
 
-# Colores para output
 function Write-ColorOutput([string]$Message, [string]$Color = "White") {
-    switch($Color) {
+    switch ($Color) {
         "Green" { Write-Host $Message -ForegroundColor Green }
         "Red" { Write-Host $Message -ForegroundColor Red }
         "Yellow" { Write-Host $Message -ForegroundColor Yellow }
@@ -28,115 +28,176 @@ function Write-Info([string]$Message) {
     Write-ColorOutput "[INFO] $Message" "Cyan"
 }
 
-# Verificar que estamos en el directorio correcto
-if (-not (Test-Path "descargar_audio.py")) {
-    Write-Error-Custom "Este script debe ejecutarse desde el directorio del proyecto."
-    Write-Info "Asegúrate de estar en la carpeta donde está descargar_audio.py"
+function Write-Warn([string]$Message) {
+    Write-ColorOutput "[WARNING] $Message" "Yellow"
+}
+
+# Ensure we are in the project directory
+if (-not (Test-Path (Join-Path $PSScriptRoot "descargar_audio.py"))) {
+    Write-Error-Custom "This script must be run from the project directory."
+    Write-Info "Expected to find descargar_audio.py next to this script."
     exit 1
 }
 
-# Verificar que existe el entorno virtual 
-$venvPath = ".\venv"
-
-# Verificar que el directorio existe
-if (-not (Test-Path $venvPath -PathType Container)) {
-    Write-Error-Custom "No se encontró el directorio del entorno virtual en: $venvPath"
-    Write-Info "Ejecuta primero: .\configurar.ps1 para crear el entorno virtual"
-    exit 1
-}
-
-$activateScript = Join-Path $venvPath "Scripts\Activate.ps1"
-
-if (-not (Test-Path $activateScript)) {
-    Write-Error-Custom "No se encontró el entorno virtual."
-    Write-Info "Ejecuta primero: .\configurar.ps1"
-    exit 1
-}
-
-# Verificar que Python está disponible
+# Check Docker availability
 try {
-    $pythonVersion = python --version 2>$null
-    if (-not $pythonVersion) {
-        throw "Python no encontrado"
-    }
+    $null = docker --version
 }
 catch {
-    Write-Error-Custom "Python no está instalado o no está en PATH."
-    Write-Info "Ejecuta primero: .\configurar.ps1"
+    Write-Error-Custom "Docker is not installed or not available in PATH."
+    Write-Info "Install Docker Desktop and try again."
     exit 1
 }
 
-# Función para mostrar ayuda personalizada
-function Show-Help {
-    Write-Host ""
-    Write-ColorOutput "YouTube to MP3 Converter - Ejecutor Simplificado" "Cyan"
-    Write-ColorOutput "=================================================" "Cyan"
-    Write-Host ""
-    Write-ColorOutput "USO:" "Yellow"
-    Write-Host "  .\ejecutar.ps1 [opciones] [URL]"
-    Write-Host ""
-    Write-ColorOutput "EJEMPLOS:" "Yellow"
-    Write-Host "  .\ejecutar.ps1 --help                              # Muestra ayuda detallada"
-    Write-Host "  .\ejecutar.ps1 --version                           # Muestra versión"
-    Write-Host "  .\ejecutar.ps1 `"https://youtube.com/watch?v=...`"   # Descarga una URL"
-    Write-Host "  .\ejecutar.ps1 --csv-file urls.csv                 # Procesa archivo CSV"
-    Write-Host "  .\ejecutar.ps1 -o `"C:\Musica`" `"https://...`"        # Especifica directorio"
-    Write-Host "  .\ejecutar.ps1                                     # Modo interactivo"
-    Write-Host ""
-    Write-ColorOutput "NOTAS:" "Yellow"
-    Write-Host "  - Si no especificas una URL, el programa te pedira una"
-    Write-Host "  - Los archivos MP3 se guardan en el directorio actual por defecto"
-    Write-Host "  - Usa Ctrl+C para cancelar en cualquier momento"
-    Write-Host ""
+# Directories
+$downloadsDir = Join-Path $PSScriptRoot "downloads"
+$logsDir = Join-Path $PSScriptRoot "logs"
+
+if (-not (Test-Path $downloadsDir)) {
+    New-Item -ItemType Directory -Path $downloadsDir -Force | Out-Null
+    Write-Info "Created downloads directory: $downloadsDir"
 }
 
-# Verificar si se pide ayuda local
-if ($Arguments.Count -eq 1 -and ($Arguments[0] -eq "-?" -or $Arguments[0] -eq "/?" -or $Arguments[0] -eq "help")) {
-    Show-Help
-    exit 0
+if (-not (Test-Path $logsDir)) {
+    New-Item -ItemType Directory -Path $logsDir -Force | Out-Null
+    Write-Info "Created logs directory: $logsDir"
 }
 
-try {
-    Write-Info "Preparando ejecución del programa..."
-    
-    Write-ColorOutput ">> Ejecutando programa..." "Green"
-    Write-Host ""
-    
-    # Construir argumentos para Python
-    $pythonArgs = @('descargar_audio.py')
-    if ($Arguments.Count -gt 0) {
-        $pythonArgs += $Arguments
+# Docker image
+$imageName = "y2m-cli"
+$imageExists = docker images -q $imageName
+
+if (-not $imageExists) {
+    Write-Info "Building Docker image..."
+    docker build -t $imageName .
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error-Custom "Docker image build failed."
+        exit 1
     }
-    
-    # Determinar la ruta del ejecutable de Python
-    $pythonExe = "python"
-    
-    # Si no estamos en un entorno virtual activado, usar el de venv
-    if (-not $env:VIRTUAL_ENV) {
-        # Construir la ruta del ejecutable de Python de forma más segura
-        $pythonExe = ".\venv\Scripts\python.exe"
-        
-        if (-not (Test-Path $pythonExe)) {
-            throw "No se pudo encontrar el ejecutable de Python en el entorno virtual en: $pythonExe"
+    Write-Info "Docker image built successfully."
+}
+
+# Argument processing
+$scriptArgs = @()
+$inputMount = $null
+$outputMount = $null
+$foundOutputArg = $false
+$csvProvided = $false
+$allowNoCsv = $false
+
+for ($i = 0; $i -lt $Arguments.Count; $i++) {
+    $arg = $Arguments[$i]
+
+    if ($arg -eq "-h" -or $arg -eq "--help" -or $arg -eq "--version") {
+        $allowNoCsv = $true
+        $scriptArgs += $arg
+        continue
+    }
+
+    if ($arg -eq "-o" -or $arg -eq "--output-dir") {
+        if ($i + 1 -ge $Arguments.Count) {
+            Write-Error-Custom "Missing value for -o/--output-dir."
+            exit 1
         }
+
+        $outRaw = $Arguments[$i + 1]
+        $outPath = Resolve-Path -Path $outRaw -ErrorAction SilentlyContinue
+        if (-not $outPath) {
+            $outPath = Join-Path $PSScriptRoot $outRaw
+        }
+
+        # Ensure output directory exists
+        if (-not (Test-Path $outPath)) {
+            New-Item -ItemType Directory -Path $outPath -Force | Out-Null
+        }
+
+        $outputMount = (Resolve-Path -Path $outPath).Path
+        $foundOutputArg = $true
+
+        $scriptArgs += $arg
+        $scriptArgs += "/app/output"
+        $i++
+        continue
     }
-    
-    # Ejecutar Python directamente con los argumentos
-    # Usar & para mejor manejo de argumentos en PowerShell
-    $process = & $pythonExe $pythonArgs
-    $exitCode = $LASTEXITCODE
-    
-    Write-Host ""
-    if ($exitCode -eq 0) {
-        Write-ColorOutput "[OK] Ejecucion completada exitosamente." "Green"
-    } else {
-        Write-ColorOutput "[WARNING] El programa termino con codigo de salida: $exitCode" "Yellow"
+
+    if ($arg.StartsWith("-")) {
+        $scriptArgs += $arg
+        continue
     }
-    
-    exit $exitCode
+
+    if ($csvProvided) {
+        Write-Error-Custom "Only one CSV file is allowed."
+        exit 1
+    }
+
+    $csvRaw = $arg
+    $csvPath = Resolve-Path -Path $csvRaw -ErrorAction SilentlyContinue
+    if (-not $csvPath) {
+        $csvPath = Resolve-Path -Path (Join-Path $PSScriptRoot $csvRaw) -ErrorAction SilentlyContinue
+    }
+    if (-not $csvPath) {
+        Write-Error-Custom "CSV file not found: $csvRaw"
+        exit 1
+    }
+
+    $csvDir = Split-Path -Path $csvPath -Parent
+    $csvFile = Split-Path -Path $csvPath -Leaf
+
+    if ($inputMount -and ($inputMount -ne $csvDir)) {
+        Write-Error-Custom "Only one CSV directory can be mounted per run."
+        Write-Info "Place all CSV files in the same folder and try again."
+        exit 1
+    }
+
+    $inputMount = $csvDir
+    $scriptArgs += ("/app/input/" + $csvFile)
+    $csvProvided = $true
 }
-catch {
-    Write-Error-Custom "Error ejecutando el programa: $($_.Exception.Message)"
-    Write-Info "Si el problema persiste, verifica la configuración ejecutando: .\configurar.ps1"
+
+if (-not $csvProvided -and -not $allowNoCsv) {
+    Write-Error-Custom "Missing CSV file. Usage: .\\ejecutar.ps1 <urls.csv> [-o <output-dir>]"
     exit 1
 }
+
+# If no output dir provided, force container output to /app/downloads
+if (-not $foundOutputArg) {
+    $scriptArgs += "-o"
+    $scriptArgs += "/app/downloads"
+}
+
+# Docker run arguments
+$runArgs = @(
+    "--rm",
+    "-it",
+    "-v", "${downloadsDir}:/app/downloads",
+    "-v", "${logsDir}:/app/logs"
+)
+
+if ($inputMount) {
+    $runArgs += "-v"
+    $runArgs += "${inputMount}:/app/input:ro"
+}
+
+if ($outputMount -and ($outputMount -ne $downloadsDir)) {
+    $runArgs += "-v"
+    $runArgs += "${outputMount}:/app/output"
+}
+
+$runArgs += $imageName
+$runArgs += $scriptArgs
+
+Write-Info "Running CLI in Docker..."
+Write-Host "[INFO] Args: $($scriptArgs -join ' ')" -ForegroundColor Gray
+
+& docker run @runArgs
+$exitCode = $LASTEXITCODE
+
+if ($exitCode -eq 0) {
+    Write-ColorOutput "[OK] Completed successfully." "Green"
+    Write-Info "Downloads: $downloadsDir"
+    Write-Info "Logs: $logsDir"
+} else {
+    Write-Warn "Process finished with exit code: $exitCode"
+}
+
+exit $exitCode
