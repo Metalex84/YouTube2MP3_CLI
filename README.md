@@ -2,7 +2,7 @@
 
 Un script en Python que descarga audio de videos de YouTube y los convierte a formato MP3.
 
-> **Nota**: Este es el repositorio de la **aplicación de línea de comandos (CLI)**. Si buscas la interfaz web, visita [y2m-web](../y2m-web).
+<!--**Nota**: Este es el repositorio de la **aplicación de línea de comandos (CLI)**. Si buscas la interfaz web, visita [y2m-web](../y2m-web).-->
 
 ## 🌟 Características
 
