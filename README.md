@@ -1,20 +1,20 @@
-﻿# YouTube to MP3 Converter - CLI
+# YouTube to MP3 Converter - CLI
 
 Un script en Python que descarga audio de videos de YouTube y los convierte a formato MP3.
 
-<!--**Nota**: Este es el repositorio de la **aplicaciÃ³n de lÃ­nea de comandos (CLI)**. Si buscas la interfaz web, visita [y2m-web](../y2m-web).-->
+<!--**Nota**: Este es el repositorio de la **aplicación de línea de comandos (CLI)**. Si buscas la interfaz web, visita [y2m-web](../y2m-web).-->
 
-## ðŸŒŸ CaracterÃ­sticas
+## 🌟 Características
 
-- âœ… **Descarga audio de alta calidad** (320 kbps)
-- âœ… **Convierte automÃ¡ticamente a MP3**
-- âœ… **Procesamiento en lote desde archivo CSV**
-- âœ… **Soporte Docker** - Ejecuta sin instalar dependencias
-- âœ… Limpia nombres de archivo problemÃ¡ticos
-- âœ… Muestra progreso de descarga en tiempo real
-- âœ… Interfaz de lÃ­nea de comandos mejorada
-- âœ… Manejo de errores robusto
-- âœ… Resumen detallado de procesamiento
+- ✅ **Descarga audio de alta calidad** (320 kbps)
+- ✅ **Convierte automáticamente a MP3**
+- ✅ **Procesamiento en lote desde archivo CSV**
+- ✅ **Soporte Docker** - Ejecuta sin instalar dependencias
+- ✅ Limpia nombres de archivo problemáticos
+- ✅ Muestra progreso de descarga en tiempo real
+- ✅ Interfaz de línea de comandos mejorada
+- ✅ Manejo de errores robusto
+- ✅ Resumen detallado de procesamiento
 
 ## Requisitos
 
@@ -22,35 +22,35 @@ Un script en Python que descarga audio de videos de YouTube y los convierte a fo
 - FFmpeg (debe estar instalado en el sistema y disponible en PATH)
 - yt-dlp (incluido en requirements.txt)
 
-## InstalaciÃ³n
+## Instalación
 
-### ðŸš€ ConfiguraciÃ³n AutomÃ¡tica (Recomendado)
+### 🚀 Configuración Automática (Recomendado)
 
-El proyecto incluye un script de configuraciÃ³n automÃ¡tico que se encarga de todo:
+El proyecto incluye un script de configuración automático que se encarga de todo:
 
 1. **Descarga el proyecto** a tu ordenador
-2. **Abre PowerShell como administrador** (clic derecho â†’ "Ejecutar como administrador")
+2. **Abre PowerShell como administrador** (clic derecho → "Ejecutar como administrador")
 3. **Navega al directorio del proyecto**:
    ```powershell
    cd "C:\ruta\a\tu\proyecto\y2m-cli"
    ```
-4. **Ejecuta la configuraciÃ³n automÃ¡tica**:
+4. **Ejecuta la configuración automática**:
    ```powershell
-   # OpciÃ³n 1: PowerShell (mÃ¡s completo, instala Python/FFmpeg automÃ¡ticamente)
+   # Opción 1: PowerShell (más completo, instala Python/FFmpeg automáticamente)
    .\configurar.ps1
    
-   # OpciÃ³n 2: Batch (mÃ¡s compatible, requiere Python pre-instalado)
+   # Opción 2: Batch (más compatible, requiere Python pre-instalado)
    configurar.bat
    ```
 
-Este script automÃ¡ticamente:
-- âœ… Verifica e instala Python 3.11.9 si es necesario
-- âœ… Verifica e instala FFmpeg si es necesario  
-- âœ… Crea el entorno virtual
-- âœ… Instala todas las dependencias
-- âœ… Verifica que todo funciona correctamente
+Este script automáticamente:
+- ✅ Verifica e instala Python 3.11.9 si es necesario
+- ✅ Verifica e instala FFmpeg si es necesario
+- ✅ Crea el entorno virtual
+- ✅ Instala todas las dependencias
+- ✅ Verifica que todo funciona correctamente
 
-### ðŸ”§ ConfiguraciÃ³n Manual (Alternativa)
+### 🔧 Configuración Manual (Alternativa)
 
 Si prefieres configurar manualmente:
 
@@ -68,9 +68,9 @@ Si prefieres configurar manualmente:
    pip install -r requirements.txt
    ```
 
-## ðŸ³ Docker (OpciÃ³n mÃ¡s fÃ¡cil)
+## 🐳 Docker (Opción más fácil)
 
-Â¿Quieres la forma mÃ¡s rÃ¡pida de empezar? Usa Docker:
+¿Quieres la forma más rápida de empezar? Usa Docker:
 
 ```bash
 # Construir imagen
@@ -87,9 +87,9 @@ docker run --rm y2m-cli --help
 ```
 
 **Ventajas de Docker:**
-- âœ… No necesitas instalar Python, FFmpeg ni dependencias
-- âœ… Funciona en Windows, Mac y Linux
-- âœ… ConfiguraciÃ³n en un solo comando
+- ✅ No necesitas instalar Python, FFmpeg ni dependencias
+- ✅ Funciona en Windows, Mac y Linux
+- ✅ Configuración en un solo comando
 
 **Script Docker incluido (recomendado):**
 ```powershell
@@ -98,9 +98,9 @@ docker run --rm y2m-cli --help
 
 ## Uso
 
-### ðŸŽ¯ Uso Simplificado (Recomendado)
+### 🎯 Uso Simplificado (Recomendado)
 
-DespuÃ©s de la configuraciÃ³n automÃ¡tica, usa el script ejecutor:
+Después de la configuración automática, usa el script ejecutor:
 
 **Procesamiento desde CSV (obligatorio):**
 ```powershell
@@ -117,7 +117,7 @@ DespuÃ©s de la configuraciÃ³n automÃ¡tica, usa el script ejecutor:
 .\ejecutar.ps1 --help
 ```
 
-### ðŸ”§ Uso Manual (Si no usas el ejecutor)
+### 🔧 Uso Manual (Si no usas el ejecutor)
 
 **Activar entorno virtual primero:**
 ```powershell
@@ -134,7 +134,7 @@ python descargar_audio.py -o "C:\Mi\Musica" urls.csv
 - `csv_file`: Archivo CSV con URLs (una por fila)
 - `-h, --help`: Muestra ayuda
 - `-o, --output-dir`: Especifica directorio de salida
-- `--version`: Muestra versiÃ³n del programa
+- `--version`: Muestra versión del programa
 
 ## Formato del archivo CSV
 
@@ -155,42 +155,42 @@ https://www.youtube.com/watch?v=VIDEO_ID_2
 https://www.youtube.com/watch?v=VIDEO_ID_3
 ```
 
-### CaracterÃ­sticas del procesamiento CSV:
-- âœ… Detecta automÃ¡ticamente si hay encabezados
-- âœ… Ignora lÃ­neas vacÃ­as
-- âœ… Valida cada URL antes de procesar
-- âœ… Muestra progreso detallado para cada descarga
-- âœ… Resumen final con estadÃ­sticas
-- âœ… Manejo de interrupciones (Ctrl+C) con resumen parcial
+### Características del procesamiento CSV:
+- ✅ Detecta automáticamente si hay encabezados
+- ✅ Ignora líneas vacías
+- ✅ Valida cada URL antes de procesar
+- ✅ Muestra progreso detallado para cada descarga
+- ✅ Resumen final con estadísticas
+- ✅ Manejo de interrupciones (Ctrl+C) con resumen parcial
 
 ## Scripts Incluidos
 
-### ðŸ› ï¸ Configuradores
+### 🛠️ Configuradores
 
-**configurar.ps1** - ConfiguraciÃ³n avanzada (PowerShell)
+**configurar.ps1** - Configuración avanzada (PowerShell)
 ```powershell
-.\configurar.ps1              # ConfiguraciÃ³n completa con instalaciÃ³n automÃ¡tica
-.\configurar.ps1 -SkipFFmpeg  # Omitir instalaciÃ³n de FFmpeg
+.\configurar.ps1              # Configuración completa con instalación automática
+.\configurar.ps1 -SkipFFmpeg  # Omitir instalación de FFmpeg
 ```
 
-**configurar.bat** - ConfiguraciÃ³n simple (Batch)
+**configurar.bat** - Configuración simple (Batch)
 ```batch
-configurar.bat                # ConfiguraciÃ³n bÃ¡sica (requiere Python pre-instalado)
+configurar.bat                # Configuración básica (requiere Python pre-instalado)
 ```
 
-### ðŸš€ Ejecutores
+### 🚀 Ejecutores
 
 **ejecutar.ps1** - Ejecutor principal (Docker)
 ```powershell
 .\ejecutar.ps1 urls.csv       # Ejecuta el programa (CSV obligatorio)
-.\ejecutar.ps1 --help         # Muestra ayuda rÃ¡pida
+.\ejecutar.ps1 --help         # Muestra ayuda rápida
 ```
 
-### ðŸŽ¥ Herramientas adicionales
+### 🎥 Herramientas adicionales
 
 **instalar_ffmpeg.ps1** - Instalador de FFmpeg
 ```powershell
-.\instalar_ffmpeg.ps1        # Instala sÃ³lo FFmpeg
+.\instalar_ffmpeg.ps1        # Instala sólo FFmpeg
 ```
 
 **docker-cli.ps1** - Wrapper (deprecado)
@@ -198,11 +198,11 @@ configurar.bat                # ConfiguraciÃ³n bÃ¡sica (requiere Python pre-
 .\docker-cli.ps1 urls.csv     # Redirige a ejecutar.ps1
 ```
 
-## SoluciÃ³n de problemas
+## Solución de problemas
 
-### ðŸš‘ ConfiguraciÃ³n
+### 🚑 Configuración
 
-**Error: "Python no estÃ¡ instalado"**
+**Error: "Python no está instalado"**
 - Ejecuta `.\configurar.ps1` como administrador
 - O instala Python manualmente desde [python.org](https://www.python.org/downloads/)
 
@@ -211,39 +211,37 @@ configurar.bat                # ConfiguraciÃ³n bÃ¡sica (requiere Python pre-
 - O ejecuta `.\configurar.ps1` de nuevo
 - O instala FFmpeg manualmente desde [ffmpeg.org](https://ffmpeg.org/download.html)
 
-**Error: "No se encontrÃ³ el entorno virtual"**
+**Error: "No se encontró el entorno virtual"**
 - Ejecuta `.\configurar.ps1` para crear el entorno
-- AsegÃºrate de estar en el directorio correcto del proyecto
+- Asegúrate de estar en el directorio correcto del proyecto
 
-### ðŸ“± EjecuciÃ³n
+### 📱 Ejecución
 
 **Error de descarga**
 - Verifica que la URL del video sea correcta
-- AsegÃºrate de tener conexiÃ³n a internet
-- Algunos videos pueden estar restringidos por regiÃ³n o privados
+- Asegúrate de tener conexión a internet
+- Algunos videos pueden estar restringidos por región o privados
 - Prueba con una URL diferente
 
 **Caracteres especiales en nombres de archivo**
-- El script limpia automÃ¡ticamente los caracteres problemÃ¡ticos
+- El script limpia automáticamente los caracteres problemáticos
 - Los archivos se guardan con nombres seguros para el sistema de archivos
 
 **Error: "Execution Policy"**
 - Ejecuta: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
 - O ejecuta: `PowerShell -ExecutionPolicy Bypass -File .\configurar.ps1`
 
-### ðŸ“ CSV
+### 📝 CSV
 
 **El archivo CSV no se procesa correctamente**
-- Verifica que el archivo tenga URLs vÃ¡lidas (que empiecen con http:// o https://)
-- AsegÃºrate de que no haya lÃ­neas vacÃ­as extra
-- El formato debe ser una URL por lÃ­nea
+- Verifica que el archivo tenga URLs válidas (que empiecen con http:// o https://)
+- Asegúrate de que no haya líneas vacías extra
+- El formato debe ser una URL por línea
 
 ## Relacionado
 
-- **Interfaz Web**: [y2m-web](../y2m-web) - VersiÃ³n con interfaz grÃ¡fica y API REST
+- **Interfaz Web**: [y2m-web](../y2m-web) - Versión con interfaz gráfica y API REST
 
 ## Licencia
 
-Este proyecto es de cÃ³digo abierto. Ãšsalo responsablemente y respeta los tÃ©rminos de servicio de YouTube.
-
-
+Este proyecto es de código abierto. Úsalo responsablemente y respeta los términos de servicio de YouTube.
