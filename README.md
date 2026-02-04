@@ -1,6 +1,8 @@
 # YouTube to MP3 Converter (CLI)
 
-Herramienta en Python para descargar audio de YouTube y convertirlo a MP3 desde un archivo CSV.
+Herramienta en Python para descargar audio de YouTube y convertirlo a MP3 desde un archivo CSV. _Esta interfaz de línea de comandos permite una ejecución más rápida._
+
+> **Nota**: Este es el repositorio de la **aplicación en línea de comandos**. Si buscas la versión Wev, visita [YouTube2MP3](https://github.com/Metalex84/YouTube2MP3).
 
 ## Inicio rápido (recomendado)
 1. Abre PowerShell como administrador.
