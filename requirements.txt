@@ -1,2 +1,5 @@
-yt-dlp>=2023.7.6
+# The [default] extra pulls in yt-dlp-ejs, required to solve YouTube's
+# JavaScript challenges (otherwise downloads fail with HTTP 403).
+yt-dlp[default]>=2026.8.19
 # FFmpeg is also required but installed separately as a system dependency
+# A JavaScript runtime (Deno) is also required, installed in the Dockerfile

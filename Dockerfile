@@ -2,8 +2,10 @@
 FROM python:3.11-alpine
 
 # Install runtime dependencies
+# deno: JavaScript runtime required by yt-dlp to solve YouTube JS challenges
 RUN apk add --no-cache \
     ffmpeg \
+    deno \
     && rm -rf /var/cache/apk/*
 
 # Set working directory
@@ -24,6 +26,8 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONIOENCODING=utf-8
 ENV DOWNLOAD_DIR=/app/downloads
 ENV LOGS_DIR=/app/logs
+# Writable cache dir for the Deno runtime (container runs as non-root)
+ENV DENO_DIR=/tmp/deno
 
 # Non-root user for security
 RUN adduser -D -g '' appuser && \

@@ -6,6 +6,8 @@
 # ================================================================================
 
 param(
+    [switch]$Rebuild,
+
     [Parameter(Position=0, ValueFromRemainingArguments=$true)]
     [string[]]$Arguments
 )
@@ -67,9 +69,13 @@ if (-not (Test-Path $logsDir)) {
 $imageName = "y2m-cli"
 $imageExists = docker images -q $imageName
 
-if (-not $imageExists) {
-    Write-Info "Building Docker image..."
-    docker build -t $imageName .
+if ($Rebuild -or -not $imageExists) {
+    if ($Rebuild) {
+        Write-Info "Rebuilding Docker image (picking up dependency updates)..."
+    } else {
+        Write-Info "Building Docker image..."
+    }
+    docker build --pull --no-cache -t $imageName $PSScriptRoot
     if ($LASTEXITCODE -ne 0) {
         Write-Error-Custom "Docker image build failed."
         exit 1
